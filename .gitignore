@@ -1,0 +1,7 @@
+.finesse/
+PLAN.md
+PLAN-REVIEW-LOG.md
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store

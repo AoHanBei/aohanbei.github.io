@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "authorization": "Screenshots are published with the user's explicit confirmation that they own or may use these nine files for this portfolio.",
+  "sourceSite": "tiammomo.github.io",
+  "images": [
+    {
+      "project": "modelport",
+      "file": "modelport/dashboard-overview-v2.png",
+      "source": "https://tiammomo.github.io/assets/images/modelport/dashboard-overview-v2.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "homepage hero, homepage project entry, case study"
+    },
+    {
+      "project": "modelport",
+      "file": "modelport/enterprise-ledger.png",
+      "source": "https://tiammomo.github.io/assets/images/modelport/enterprise-ledger.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "case study"
+    },
+    {
+      "project": "modelport",
+      "file": "modelport/models-routing.png",
+      "source": "https://tiammomo.github.io/assets/images/modelport/models-routing.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "case study"
+    },
+    {
+      "project": "quantpilot",
+      "file": "quantpilot/workbench-v2.png",
+      "source": "https://tiammomo.github.io/assets/images/quantpilot/workbench-v2.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "homepage project entry, case study"
+    },
+    {
+      "project": "quantpilot",
+      "file": "quantpilot/ops-governance.png",
+      "source": "https://tiammomo.github.io/assets/images/quantpilot/ops-governance.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "case study"
+    },
+    {
+      "project": "quantpilot",
+      "file": "quantpilot/eval-platform-v2.png",
+      "source": "https://tiammomo.github.io/assets/images/quantpilot/eval-platform-v2.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "case study"
+    },
+    {
+      "project": "evolvable-user-memory",
+      "file": "evolvable-user-memory/workbench.png",
+      "source": "https://tiammomo.github.io/assets/images/evolvable-user-memory/workbench.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "homepage project entry, case study"
+    },
+    {
+      "project": "evolvable-user-memory",
+      "file": "evolvable-user-memory/evidence-capture.png",
+      "source": "https://tiammomo.github.io/assets/images/evolvable-user-memory/evidence-capture.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "case study"
+    },
+    {
+      "project": "evolvable-user-memory",
+      "file": "evolvable-user-memory/five-plane-architecture.png",
+      "source": "https://tiammomo.github.io/assets/images/evolvable-user-memory/five-plane-architecture.png",
+      "width": 1600,
+      "height": 1000,
+      "usage": "case study"
+    }
+  ]
+}
