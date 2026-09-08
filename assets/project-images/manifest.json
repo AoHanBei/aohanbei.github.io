@@ -1,12 +1,12 @@
 {
   "version": 1,
   "authorization": "Screenshots are published with the user's explicit confirmation that they own or may use these nine files for this portfolio.",
-  "sourceSite": "tiammomo.github.io",
+  "sourceSite": "current local project frontends and tiammomo.github.io",
   "images": [
     {
       "project": "modelport",
       "file": "modelport/dashboard-overview-v2.png",
-      "source": "https://tiammomo.github.io/assets/images/modelport/dashboard-overview-v2.png",
+      "source": "E:/AICode/ModelPort/ModelPort-main-new/dashboard (current local frontend, mock presentation data)",
       "width": 1600,
       "height": 1000,
       "usage": "homepage hero, homepage project entry, case study"
@@ -14,7 +14,7 @@
     {
       "project": "modelport",
       "file": "modelport/enterprise-ledger.png",
-      "source": "https://tiammomo.github.io/assets/images/modelport/enterprise-ledger.png",
+      "source": "E:/AICode/ModelPort/ModelPort-main-new/dashboard (current local frontend, mock presentation data)",
       "width": 1600,
       "height": 1000,
       "usage": "case study"
@@ -22,7 +22,7 @@
     {
       "project": "modelport",
       "file": "modelport/models-routing.png",
-      "source": "https://tiammomo.github.io/assets/images/modelport/models-routing.png",
+      "source": "E:/AICode/ModelPort/ModelPort-main-new/dashboard (current local frontend, mock presentation data)",
       "width": 1600,
       "height": 1000,
       "usage": "case study"
@@ -54,7 +54,7 @@
     {
       "project": "evolvable-user-memory",
       "file": "evolvable-user-memory/workbench.png",
-      "source": "https://tiammomo.github.io/assets/images/evolvable-user-memory/workbench.png",
+      "source": "E:/AICode/Memory/Memory-main (current local frontend and in-memory development backend)",
       "width": 1600,
       "height": 1000,
       "usage": "homepage project entry, case study"
@@ -62,7 +62,7 @@
     {
       "project": "evolvable-user-memory",
       "file": "evolvable-user-memory/evidence-capture.png",
-      "source": "https://tiammomo.github.io/assets/images/evolvable-user-memory/evidence-capture.png",
+      "source": "E:/AICode/Memory/Memory-main (current local frontend and in-memory development backend)",
       "width": 1600,
       "height": 1000,
       "usage": "case study"
@@ -70,7 +70,7 @@
     {
       "project": "evolvable-user-memory",
       "file": "evolvable-user-memory/five-plane-architecture.png",
-      "source": "https://tiammomo.github.io/assets/images/evolvable-user-memory/five-plane-architecture.png",
+      "source": "E:/AICode/Memory/Memory-main (current local frontend and in-memory development backend)",
       "width": 1600,
       "height": 1000,
       "usage": "case study"

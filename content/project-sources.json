@@ -3,7 +3,7 @@
   "projects": [
     {
       "id": "modelport",
-      "source": "https://tiammomo.github.io/projects/modelport.html",
+      "source": "https://github.com/AoHanBei/ModelPort",
       "verification": "source-page-and-user-confirmed",
       "claims": [
         {
@@ -24,7 +24,7 @@
         },
         {
           "id": "mp-shot-ledger",
-          "text": "企业请求事实账本按租户查看请求、Provider 尝试、租约、幂等状态、预算预留与结算，同时不把原始请求体带进控制台。"
+          "text": "请求日志按真实请求记录展示路由渠道、调用身份、模型、延迟、Token、费用与计费来源，并支持按时间、Provider 和状态筛选。"
         },
         {
           "id": "mp-shot-routing",
@@ -185,7 +185,7 @@
     },
     {
       "id": "evolvable-user-memory",
-      "source": "https://tiammomo.github.io/projects/evolvable-user-memory.html",
+      "source": "https://github.com/AoHanBei/Memory",
       "verification": "source-page-and-user-confirmed",
       "claims": [
         {
@@ -206,7 +206,7 @@
         },
         {
           "id": "mem-shot-evidence",
-          "text": "记忆键、值、原始证据、上下文、来源与置信度共同进入 Observation，再形成 Candidate 和不可变 Revision。"
+          "text": "当前记忆视图展示最新不可变 Revision、上下文、信念置信度与关联证据数量，并提供修正和修订历史入口。"
         },
         {
           "id": "mem-shot-planes",

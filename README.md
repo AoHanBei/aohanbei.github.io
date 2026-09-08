@@ -29,7 +29,7 @@ npm run preview
 ## 内容与样式约束
 
 - 项目事实来源保存在 `content/project-sources.json`，页面内容通过 `src/content/projects.ts` 类型化引用。
-- 9 张授权项目截图保存在 `assets/project-images/`，用途与来源记录在同目录清单中。
+- 9 张授权项目截图保存在 `assets/project-images/`，用途与来源记录在同目录清单中；其中 ModelPort 与 Memory 使用各自当前本地前端生成的 1600 × 1000 截图。
 - DeerFlow 合并贡献保存在 `src/content/contributions.ts`，访客浏览时不会调用 GitHub API。
 - 全站只有 `src/styles/globals.css` 一个样式入口。组件使用 Tailwind class 与 shadcn/ui 语义 token。
 - Inter 与思源黑体同源的简体中文字形资源由 npm 依赖进入生产包，不依赖远程字体 CDN。

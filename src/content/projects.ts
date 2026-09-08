@@ -133,6 +133,7 @@ export const projects: Project[] = [
     ],
     fit: claim("mp-fit"),
     boundary: claim("mp-boundary"),
+    repositoryUrl: "https://github.com/AoHanBei/ModelPort",
   },
   {
     slug: "quantpilot",
@@ -221,8 +222,8 @@ export const projects: Project[] = [
     evidence: [
       {
         src: memoryEvidence,
-        alt: "Evolvable User Memory 可追溯偏好记录界面",
-        title: "证据先于信念",
+        alt: "Evolvable User Memory 当前有效记忆界面",
+        title: "当前有效记忆",
         caption: claim("mem-shot-evidence"),
       },
       {
@@ -271,6 +272,7 @@ export const projects: Project[] = [
     ],
     fit: claim("mem-fit"),
     boundary: claim("mem-boundary"),
+    repositoryUrl: "https://github.com/AoHanBei/Memory",
   },
 ];
 

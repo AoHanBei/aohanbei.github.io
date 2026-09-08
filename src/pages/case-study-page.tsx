@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
 import {
@@ -80,6 +80,13 @@ export function CaseStudyPage({ project }: { project: Project }) {
                 <Button asChild variant="outline">
                   <a href="/#projects"><ArrowLeft className="size-4" aria-hidden="true" /> 返回项目</a>
                 </Button>
+                {project.repositoryUrl ? (
+                  <Button asChild variant="outline">
+                    <a href={project.repositoryUrl} target="_blank" rel="noreferrer">
+                      GitHub 仓库 <ArrowUpRight className="size-4" aria-hidden="true" />
+                    </a>
+                  </Button>
+                ) : null}
               </div>
             </div>
             <ScreenshotFrame image={project.heroImage} eager index="FIG. 01" />

@@ -120,8 +120,14 @@ const projectSource = readFileSync(join(workspace, "src/content/projects.ts"), "
 const claimReferences = [...projectSource.matchAll(/claim\("([^"]+)"\)/g)].map((match) => match[1]);
 const claimIds = sources.projects.flatMap((project) => project.claims.map((claim) => claim.id));
 
+const allowedProjectSources = new Map([
+  ["modelport", "https://github.com/AoHanBei/ModelPort"],
+  ["quantpilot", "https://tiammomo.github.io/projects/quantpilot.html"],
+  ["evolvable-user-memory", "https://github.com/AoHanBei/Memory"],
+]);
+
 for (const project of sources.projects) {
-  if (!/^https:\/\/tiammomo\.github\.io\/projects\//.test(project.source)) {
+  if (project.source !== allowedProjectSources.get(project.id)) {
     fail(`content/project-sources.json: ${project.id} 来源不符合约束`);
   }
 }
