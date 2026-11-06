@@ -9,7 +9,7 @@ import quantOps from "../../assets/project-images/quantpilot/ops-governance.png"
 import quantWorkbench from "../../assets/project-images/quantpilot/workbench-v2.png";
 import sourceData from "../../content/project-sources.json";
 
-export type ProjectSlug = "modelport" | "quantpilot" | "evolvable-user-memory";
+export type ProjectSlug = "modelport" | "evolvable-user-memory" | "quantpilot";
 
 export type Claim = {
   id: string;
@@ -23,32 +23,49 @@ export type ProjectImage = {
   caption: Claim;
 };
 
-export type Project = {
+/** 一个实现模块：先说要防的事故，再说怎么做。 */
+export type Module = {
+  title: string;
+  risk: Claim;
+  how: Claim;
+};
+
+type ProjectBase = {
   slug: ProjectSlug;
-  order: string;
   name: string;
-  shortName: string;
   category: string;
-  categoryZh: string;
+  status: string;
+  period?: string;
+  stack: string[];
   summary: Claim;
   heroImage: ProjectImage;
-  evidenceHeading: string;
   evidence: ProjectImage[];
-  facts: Array<{ label: string; value: string }>;
-  tags: string[];
-  problem: { title: string; body: Claim };
-  approach: { title: string; body: Claim };
-  capabilityIntro: string;
-  capabilities: Array<{ title: string; body: Claim }>;
-  lifecycleLabel: string;
-  lifecycleTitle: string;
-  lifecycle: Array<{ title: string; body: Claim }>;
-  tradeoffsTitle: string;
+  repositoryUrl?: string;
+};
+
+/** 本人实现的主力项目：架构图 + 实现模块 + 取舍与边界。 */
+export type BuildProject = ProjectBase & {
+  kind: "build";
+  origin: Claim;
+  diagram: "modelport" | "memory";
+  diagramTitle: string;
+  modules: Module[];
   tradeoffs: Array<{ title: string; body: Claim }>;
   fit: Claim;
   boundary: Claim;
-  repositoryUrl?: string;
 };
+
+/** 正在学习的项目：研究的设计 + 个人理解。 */
+export type StudyProject = ProjectBase & {
+  kind: "study";
+  problem: Claim;
+  flow: Array<{ title: string; body: Claim }>;
+  studies: Array<{ title: string; body: Claim }>;
+  notes: Array<{ title: string; body: Claim }>;
+  boundary: Claim;
+};
+
+export type Project = BuildProject | StudyProject;
 
 const claims = new Map(
   sourceData.projects.flatMap((project) =>
@@ -66,25 +83,26 @@ function claim(id: string): Claim {
 
 export const projects: Project[] = [
   {
+    kind: "build",
     slug: "modelport",
-    order: "01",
     name: "ModelPort",
-    shortName: "ModelPort",
-    category: "Infrastructure",
-    categoryZh: "模型基础设施",
+    category: "大模型网关",
+    status: "开源 · 源于实习",
+    period: "2026.03 – 2026.06",
+    stack: ["Rust", "Axum", "Tokio", "PostgreSQL", "SSE"],
     summary: claim("mp-summary"),
+    origin: claim("mp-origin"),
     heroImage: {
       src: modelportDashboard,
       alt: "ModelPort 运行仪表盘",
       title: "运行仪表盘",
       caption: claim("mp-shot-dashboard"),
     },
-    evidenceHeading: "控制面中的运行证据",
     evidence: [
       {
         src: modelportLedger,
-        alt: "ModelPort 企业请求事实账本",
-        title: "企业请求事实账本",
+        alt: "ModelPort 请求日志与费用账本",
+        title: "请求日志与费用账本",
         caption: claim("mp-shot-ledger"),
       },
       {
@@ -94,67 +112,92 @@ export const projects: Project[] = [
         caption: claim("mp-shot-routing"),
       },
     ],
-    facts: [
-      { label: "Client edges", value: "Anthropic + OpenAI" },
-      { label: "Gateway", value: "Rust · Axum · Tokio" },
-      { label: "Control plane", value: "React · PostgreSQL" },
+    diagram: "modelport",
+    diagramTitle: "一次调用从进来到结算",
+    modules: [
+      { title: "协议适配", risk: claim("mp-mod-protocol-risk"), how: claim("mp-mod-protocol-how") },
+      { title: "路由与容错", risk: claim("mp-mod-routing-risk"), how: claim("mp-mod-routing-how") },
+      { title: "并发幂等", risk: claim("mp-mod-idempotency-risk"), how: claim("mp-mod-idempotency-how") },
+      { title: "预算结算", risk: claim("mp-mod-budget-risk"), how: claim("mp-mod-budget-how") },
+      { title: "流式生命周期与回归验证", risk: claim("mp-mod-stream-risk"), how: claim("mp-mod-stream-how") },
     ],
-    tags: ["Protocol Gateway", "Routing", "Usage Ledger"],
-    problem: {
-      title: "模型接得越多，业务越不该感知 Provider 差异",
-      body: claim("mp-problem"),
-    },
-    approach: {
-      title: "让每次调用留下完整终态",
-      body: claim("mp-approach"),
-    },
-    capabilityIntro: "能力按请求生命周期组织，不以页面功能数量代替系统边界。",
-    capabilities: [
-      { title: "双协议客户端入口", body: claim("mp-cap-protocol") },
-      { title: "协议中立结构", body: claim("mp-cap-ir") },
-      { title: "确定性路由与降级", body: claim("mp-cap-routing") },
-      { title: "身份、策略与预算", body: claim("mp-cap-policy") },
-      { title: "完整流式生命周期", body: claim("mp-cap-stream") },
-      { title: "运维控制面", body: claim("mp-cap-ops") },
-    ],
-    lifecycleLabel: "请求链路",
-    lifecycleTitle: "一条请求怎样形成可信记录",
-    lifecycle: [
-      { title: "Client Edge", body: claim("mp-flow-client") },
-      { title: "Exchange & Policy", body: claim("mp-flow-policy") },
-      { title: "Provider Attempt", body: claim("mp-flow-attempt") },
-      { title: "Terminal Evidence", body: claim("mp-flow-evidence") },
-    ],
-    tradeoffsTitle: "比转发成功更重要的三件事",
     tradeoffs: [
-      { title: "不静默吞掉协议语义", body: claim("mp-tradeoff-semantics") },
-      { title: "只为真实出站尝试计费", body: claim("mp-tradeoff-billing") },
-      { title: "区分事实来源", body: claim("mp-tradeoff-evidence") },
+      { title: "宁可拒绝，也不静默改写语义", body: claim("mp-tradeoff-semantics") },
+      { title: "只为真实出站的尝试计费", body: claim("mp-tradeoff-billing") },
+      { title: "租约不等于没有副作用", body: claim("mp-tradeoff-lease") },
     ],
     fit: claim("mp-fit"),
     boundary: claim("mp-boundary"),
     repositoryUrl: "https://github.com/AoHanBei/ModelPort",
   },
   {
+    kind: "build",
+    slug: "evolvable-user-memory",
+    name: "可演化用户记忆",
+    category: "记忆服务",
+    status: "开源 · 个人项目",
+    period: "2026.05 – 2026.08",
+    stack: ["Python", "FastAPI", "PostgreSQL", "Milvus"],
+    summary: claim("mem-summary"),
+    origin: claim("mem-origin"),
+    heroImage: {
+      src: memoryWorkbench,
+      alt: "可演化用户记忆的五步记忆工作台",
+      title: "五步记忆工作台",
+      caption: claim("mem-shot-workbench"),
+    },
+    evidence: [
+      {
+        src: memoryEvidence,
+        alt: "可演化用户记忆的当前有效记忆界面",
+        title: "当前有效记忆",
+        caption: claim("mem-shot-evidence"),
+      },
+      {
+        src: memoryPlanes,
+        alt: "可演化用户记忆的五平面架构说明",
+        title: "五个平面，一条因果链",
+        caption: claim("mem-shot-planes"),
+      },
+    ],
+    diagram: "memory",
+    diagramTitle: "五层记忆与两条时间轴",
+    modules: [
+      { title: "记忆分层与版本存储", risk: claim("mem-mod-layers-risk"), how: claim("mem-mod-layers-how") },
+      { title: "双时态查询", risk: claim("mem-mod-bitemporal-risk"), how: claim("mem-mod-bitemporal-how") },
+      { title: "混合检索与归因", risk: claim("mem-mod-retrieval-risk"), how: claim("mem-mod-retrieval-how") },
+      { title: "反馈隔离", risk: claim("mem-mod-feedback-risk"), how: claim("mem-mod-feedback-how") },
+      { title: "策略评测与发布门禁", risk: claim("mem-mod-gate-risk"), how: claim("mem-mod-gate-how") },
+      { title: "事实与向量存储分离", risk: claim("mem-mod-storage-risk"), how: claim("mem-mod-storage-how") },
+    ],
+    tradeoffs: [
+      { title: "被召回不等于被验证", body: claim("mem-tradeoff-read") },
+      { title: "双时间不等于完全复现", body: claim("mem-tradeoff-bitemporal") },
+      { title: "演化不越过治理红线", body: claim("mem-tradeoff-governance") },
+    ],
+    fit: claim("mem-fit"),
+    boundary: claim("mem-boundary"),
+    repositoryUrl: "https://github.com/AoHanBei/Memory",
+  },
+  {
+    kind: "study",
     slug: "quantpilot",
-    order: "02",
     name: "QuantPilot",
-    shortName: "QuantPilot",
-    category: "Data Agent",
-    categoryZh: "数据智能体",
+    category: "数据智能体",
+    status: "学习中",
+    stack: ["Next.js", "FastAPI", "TimescaleDB", "Redis"],
     summary: claim("qp-summary"),
     heroImage: {
       src: quantWorkbench,
-      alt: "QuantPilot AI 量化研究工作台",
+      alt: "QuantPilot 自然语言研究工作台",
       title: "自然语言研究入口",
       caption: claim("qp-shot-workbench"),
     },
-    evidenceHeading: "从研究入口到质量门禁",
     evidence: [
       {
         src: quantOps,
-        alt: "QuantPilot Data Agent 运行治理中心",
-        title: "Data Agent 运行治理",
+        alt: "QuantPilot Worker 运行治理中心",
+        title: "Worker 运行治理",
         caption: claim("qp-shot-ops"),
       },
       {
@@ -164,115 +207,25 @@ export const projects: Project[] = [
         caption: claim("qp-shot-eval"),
       },
     ],
-    facts: [
-      { label: "Application profile", value: "finance.quant" },
-      { label: "Delivery pack", value: "Next.js Dashboard" },
-      { label: "Data plane", value: "TimescaleDB · FastAPI" },
+    problem: claim("qp-problem"),
+    flow: [
+      { title: "改写与核验", body: claim("qp-flow-rewrite") },
+      { title: "组合与冻结", body: claim("qp-flow-freeze") },
+      { title: "领取与生成", body: claim("qp-flow-generate") },
+      { title: "验证与交付", body: claim("qp-flow-deliver") },
     ],
-    tags: ["Agent Workflow", "Worker Governance", "Evaluation"],
-    problem: {
-      title: "研究答案不等于可交付的研究工作",
-      body: claim("qp-problem"),
-    },
-    approach: {
-      title: "让业务规则成为独立能力包",
-      body: claim("qp-approach"),
-    },
-    capabilityIntro: "从版本合同、真实数据到隔离预览，覆盖任务的完整交付路径。",
-    capabilities: [
-      { title: "版本化 Data Agent 合同", body: claim("qp-cap-contract") },
-      { title: "结构化 Query Rewrite", body: claim("qp-cap-rewrite") },
-      { title: "真实金融数据底座", body: claim("qp-cap-data") },
-      { title: "持久 Worker 治理", body: claim("qp-cap-worker") },
-      { title: "受治理的上下文组合", body: claim("qp-cap-context") },
-      { title: "隔离构建与预览", body: claim("qp-cap-preview") },
+    studies: [
+      { title: "领域包与通用内核分离", body: claim("qp-study-domain") },
+      { title: "版本化任务合同", body: claim("qp-study-contract") },
+      { title: "长任务的 Worker 治理", body: claim("qp-study-worker") },
+      { title: "独立于模型自述的质量门禁", body: claim("qp-study-gate") },
     ],
-    lifecycleLabel: "执行链路",
-    lifecycleTitle: "从一句研究问题到可运行工作空间",
-    lifecycle: [
-      { title: "Rewrite & Resolve", body: claim("qp-flow-rewrite") },
-      { title: "Compose & Freeze", body: claim("qp-flow-freeze") },
-      { title: "Claim & Generate", body: claim("qp-flow-generate") },
-      { title: "Validate & Deliver", body: claim("qp-flow-deliver") },
+    notes: [
+      { title: "差异收在边界", body: claim("qp-note-edge") },
+      { title: "输入要能事后复查", body: claim("qp-note-freeze") },
+      { title: "完成要由证据判定", body: claim("qp-note-gate") },
     ],
-    tradeoffsTitle: "架构中保持清晰的三条分界",
-    tradeoffs: [
-      { title: "通用内核不理解金融", body: claim("qp-tradeoff-domain") },
-      { title: "排队前后使用同一份上下文", body: claim("qp-tradeoff-context") },
-      { title: "质量门禁独立于模型自述", body: claim("qp-tradeoff-gate") },
-    ],
-    fit: claim("qp-fit"),
     boundary: claim("qp-boundary"),
-  },
-  {
-    slug: "evolvable-user-memory",
-    order: "03",
-    name: "Evolvable User Memory",
-    shortName: "User Memory",
-    category: "Memory Infrastructure",
-    categoryZh: "记忆基础设施",
-    summary: claim("mem-summary"),
-    heroImage: {
-      src: memoryWorkbench,
-      alt: "Evolvable User Memory 五步记忆工作台",
-      title: "五步记忆工作台",
-      caption: claim("mem-shot-workbench"),
-    },
-    evidenceHeading: "从证据采集到五平面架构",
-    evidence: [
-      {
-        src: memoryEvidence,
-        alt: "Evolvable User Memory 当前有效记忆界面",
-        title: "当前有效记忆",
-        caption: claim("mem-shot-evidence"),
-      },
-      {
-        src: memoryPlanes,
-        alt: "Evolvable User Memory 五平面架构说明",
-        title: "五个平面，一条因果链",
-        caption: claim("mem-shot-planes"),
-      },
-    ],
-    facts: [
-      { label: "Memory model", value: "5 planes" },
-      { label: "Authority", value: "PostgreSQL" },
-      { label: "Runtime", value: "FastAPI · Python" },
-    ],
-    tags: ["Evidence", "Recall Trace", "Policy Evolution"],
-    problem: {
-      title: "被召回不能成为更可信的理由",
-      body: claim("mem-problem"),
-    },
-    approach: {
-      title: "把记忆建模为有证据的状态演化",
-      body: claim("mem-approach"),
-    },
-    capabilityIntro: "不同平面分别保存证据、信念、使用结果、投影与策略变化。",
-    capabilities: [
-      { title: "Evidence", body: claim("mem-cap-evidence") },
-      { title: "Belief", body: claim("mem-cap-belief") },
-      { title: "Experience", body: claim("mem-cap-experience") },
-      { title: "Projection", body: claim("mem-cap-projection") },
-      { title: "Evolution", body: claim("mem-cap-evolution") },
-      { title: "Governance", body: claim("mem-cap-governance") },
-    ],
-    lifecycleLabel: "记忆链路",
-    lifecycleTitle: "从一次观察到有界策略演化",
-    lifecycle: [
-      { title: "Observe", body: claim("mem-flow-observe") },
-      { title: "Form Belief", body: claim("mem-flow-belief") },
-      { title: "Recall & Project", body: claim("mem-flow-recall") },
-      { title: "Outcome & Evolve", body: claim("mem-flow-evolve") },
-    ],
-    tradeoffsTitle: "防止记忆系统越用越偏的三道边界",
-    tradeoffs: [
-      { title: "读操作绝不强化信念", body: claim("mem-tradeoff-read") },
-      { title: "向量索引不是事实来源", body: claim("mem-tradeoff-index") },
-      { title: "演化不越过治理红线", body: claim("mem-tradeoff-governance") },
-    ],
-    fit: claim("mem-fit"),
-    boundary: claim("mem-boundary"),
-    repositoryUrl: "https://github.com/AoHanBei/Memory",
   },
 ];
 

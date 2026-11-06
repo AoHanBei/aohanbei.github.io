@@ -1,22 +1,18 @@
 {
-  "version": 1,
+  "version": 2,
   "projects": [
     {
       "id": "modelport",
       "source": "https://github.com/AoHanBei/ModelPort",
-      "verification": "source-page-and-user-confirmed",
+      "verification": "resume-v2-and-user-confirmed",
       "claims": [
         {
           "id": "mp-summary",
-          "text": "一个面向可信主机与小型网络的自托管多协议模型网关，统一 Anthropic Messages 与 OpenAI Chat 的鉴权、策略、预算、路由和观测链路。"
+          "text": "为 Claude Code、OpenAI SDK 与内部 Agent 提供统一调用入口的大模型网关，覆盖协议适配、模型路由、预算控制与调用审计。"
         },
         {
-          "id": "mp-problem",
-          "text": "客户端协议、模型命名、Tool Use、流式事件、鉴权、限流和 usage 口径都可能不同。若每个应用直接连接 Provider，这些差异会扩散到业务代码，也很难统一解释一次请求的路由与预算。"
-        },
-        {
-          "id": "mp-approach",
-          "text": "系统把协议解析、策略检查、Provider 尝试、流式终态和预算结算放进一条可追踪链路，让一次模型调用成为可治理、可结算的尝试。"
+          "id": "mp-origin",
+          "text": "源于实习期间参与的内网大模型网关开发，之后独立整理为开源版本。"
         },
         {
           "id": "mp-shot-dashboard",
@@ -31,56 +27,56 @@
           "text": "Provider 与模型路由界面统一管理模型目录、凭证、协议能力、别名和默认路由，并直接呈现缺少密钥或未启用等状态。"
         },
         {
-          "id": "mp-cap-protocol",
-          "text": "Anthropic Messages 与有明确范围的 OpenAI Chat 入口共用治理链路，并提供模型目录与精确 token counting。"
+          "id": "mp-mod-protocol-risk",
+          "text": "Anthropic 与 OpenAI 的字段并不一一对应。转换时如果悄悄丢掉工具调用或结束原因，请求看起来成功了，含义却已经变了。"
         },
         {
-          "id": "mp-cap-ir",
-          "text": "文本角色、function tools、Tool Call、结束原因、usage 与流式终态先进入协议中立结构，不支持的语义会被显式拒绝。"
+          "id": "mp-mod-protocol-how",
+          "text": "两种协议先解析进强类型中间表示，统一文本、工具调用、用量和结束原因；发往上游前逐个校验字段能否被目标协议表达，不能保真就直接拒绝。"
         },
         {
-          "id": "mp-cap-routing",
-          "text": "系统按显式 Provider、别名、精确模型、前缀和默认路由解析，只对可接收模型的 Provider 执行有边界的 fallback。"
+          "id": "mp-mod-routing-risk",
+          "text": "模型名写法各异，请求可能落到错误的供应商；某个供应商出故障时，又容易无限重试，或切到不支持当前能力的模型。"
         },
         {
-          "id": "mp-cap-policy",
-          "text": "API Key 绑定用户与租户作用域，并叠加模型、Provider、IP、配额和滚动费用策略；PostgreSQL 在出站前原子预留预算。"
+          "id": "mp-mod-routing-how",
+          "text": "按显式供应商模型、别名、精确匹配、前缀匹配、默认供应商的固定顺序解析，同一输入总落到同一路由；先按模型能力过滤候选，再结合凭据池、冷却窗口做有界故障转移。"
         },
         {
-          "id": "mp-cap-stream",
-          "text": "SSE permit 持有到 body 完成、失败或取消，终态统一结算健康、延迟、usage 与日志。"
+          "id": "mp-mod-idempotency-risk",
+          "text": "客户端超时后重试，同一请求可能被发往上游两次，产生重复费用和重复副作用。"
         },
         {
-          "id": "mp-cap-ops",
-          "text": "控制面覆盖用户、Key、配额、Provider、模型、审计和账本，同时提供配置校验、诊断、备份恢复与部署路径。"
+          "id": "mp-mod-idempotency-how",
+          "text": "建立租户级请求账本与调用尝试账本，用幂等键、请求指纹和租约协调执行；同一个键带着不同参数会被判为冲突，并发同键请求有专门的回归验证，确认不会重复出站。"
         },
         {
-          "id": "mp-flow-client",
-          "text": "Claude Code、OpenAI SDK 或 API 客户端进入各自协议边界，先完成大小限制、鉴权、参数校验和 request ID 分配。"
+          "id": "mp-mod-budget-risk",
+          "text": "多个并发请求同时通过预算检查，结果一起超支；故障转移过程中用量丢失，事后对不上账。"
         },
         {
-          "id": "mp-flow-policy",
-          "text": "请求解析为强类型 Exchange IR，再执行租户、API Key、模型、Provider、IP、配额、能力和预算检查。"
+          "id": "mp-mod-budget-how",
+          "text": "每次上游调用前在 PostgreSQL 事务里预留预算，预留与请求、调用尝试记录关联；按终态证据结算或释放，故障转移中的每次尝试都能追溯用量和费用。"
         },
         {
-          "id": "mp-flow-attempt",
-          "text": "确定性路由选择凭证和 Provider，每次真实出站尝试独立建账、持有租约，并只在可重试失败上考虑下一条路径。"
+          "id": "mp-mod-stream-risk",
+          "text": "SSE 流中途断开时，健康状态、用量和日志没有终态，预留的预算一直挂着不释放。"
         },
         {
-          "id": "mp-flow-evidence",
-          "text": "响应映射回原客户端协议，完成、失败、超时或取消都会结算 usage、费用、预算、健康和不可变证据。"
+          "id": "mp-mod-stream-how",
+          "text": "非流式与 SSE 请求共用一套生命周期，完成、失败、取消都走统一终态结算；回归测试覆盖协议转换、工具调用、配额、幂等和故障恢复的正常与异常终止路径。"
         },
         {
           "id": "mp-tradeoff-semantics",
-          "text": "系统只承诺已经进入类型系统和测试边界的字段，遇到未覆盖语义时明确拒绝，避免请求成功但含义改变。"
+          "text": "只承诺已经进入类型系统和测试边界的字段，遇到未覆盖的语义明确拒绝，避免请求成功但含义改变。"
         },
         {
           "id": "mp-tradeoff-billing",
-          "text": "所有 preflight 拒绝保持零 usage、零费用，只有已经发往上游的尝试才进入结算。"
+          "text": "在出站前就被拒绝的请求保持零用量、零费用，只有真正发往上游的尝试才进入结算。没有返回用量，不等于没有产生费用。"
         },
         {
-          "id": "mp-tradeoff-evidence",
-          "text": "Provider 返回的 usage 与本地估算分别标记，运行日志、监控和企业账本服务不同排障层级。"
+          "id": "mp-tradeoff-lease",
+          "text": "租约能防止同一请求被重复执行，但消除不了已经发生的外部副作用，所以幂等冲突宁可拒绝也不猜测。"
         },
         {
           "id": "mp-fit",
@@ -88,7 +84,7 @@
         },
         {
           "id": "mp-boundary",
-          "text": "当前版本不是可直接暴露公网的成熟多租户 SaaS；部分会话、限流与 stream permit 仍是进程内状态，Provider 账单仍是最终计费权威。"
+          "text": "当前版本不是可直接暴露公网的成熟多租户 SaaS；部分会话、限流与流式许可仍是进程内状态，Provider 账单仍是最终计费依据。"
         }
       ]
     },
@@ -99,15 +95,11 @@
       "claims": [
         {
           "id": "qp-summary",
-          "text": "一个建立在通用 Data Agent 与 MoAgent Framework 之上的金融量化应用，把自然语言研究问题转成带版本合同、真实数据、生成工作空间和质量门禁的可交付任务。"
+          "text": "一个建立在通用 Data Agent 之上的金融量化研究应用，把自然语言研究问题转成带版本合同、真实数据、生成工作空间和质量门禁的可交付任务。"
         },
         {
           "id": "qp-problem",
-          "text": "金融问题通常同时包含证券身份、时间范围、数据源、研究方法、交付格式和风险边界。只让模型回答问题，难以证明数据与分析路径，也无法稳定处理排队、重试、取消和并发。"
-        },
-        {
-          "id": "qp-approach",
-          "text": "系统把通用任务合同留在 Data Agent 平台，把证券解析、行情、Skills、工具、Mission 和视觉规则收进 Finance Domain Pack。"
+          "text": "金融问题同时包含证券身份、时间范围、数据源、研究方法、交付格式和风险边界。只让模型回答问题，难以证明数据与分析路径，也无法稳定处理排队、重试、取消和并发。"
         },
         {
           "id": "qp-shot-workbench",
@@ -115,67 +107,55 @@
         },
         {
           "id": "qp-shot-ops",
-          "text": "运行治理中心读取 Worker registry、全局槽位、generation queue、租约和工作空间事实，并区分可运行状态与需要处理的风险。"
+          "text": "运行治理中心读取 Worker 注册表、全局槽位、生成队列、租约和工作空间事实，并区分可运行状态与需要处理的风险。"
         },
         {
           "id": "qp-shot-eval",
           "text": "交付质量门禁同时观察首轮、最终、重复稳定性、变异捕获与 Judge 校准。"
         },
         {
-          "id": "qp-cap-contract",
-          "text": "项目和任务持久化 Profile、Domain、Delivery、capability 版本锁与 SHA-256，让一次运行能回到当时实际使用的组合。"
-        },
-        {
-          "id": "qp-cap-rewrite",
-          "text": "模型生成结构化语义合同，时间、宽域范围和 answer-only 意图必须有原文字面证据，证券 Resolver 再独立核验代码。"
-        },
-        {
-          "id": "qp-cap-data",
-          "text": "FastAPI 市场服务连接 PostgreSQL、TimescaleDB 与 Redis，承载行情、K 线、估值因子、补数状态和策略平台接口。"
-        },
-        {
-          "id": "qp-cap-worker",
-          "text": "Generation job 与事务 outbox 进入独立 Worker，registry、全局槽位、公平 claim、双层配额、lease、fencing 和资源锁共同约束长任务。"
-        },
-        {
-          "id": "qp-cap-context",
-          "text": "Memory 与知识服务通过独立 HTTP 合同接入，运行前冻结使用清单与知识快照，结束后分别记录 usage、outcome 和 feedback。"
-        },
-        {
-          "id": "qp-cap-preview",
-          "text": "生成项目的 build 与 preview 默认进入隔离环境，工作区只读且不包含平台密钥。"
-        },
-        {
           "id": "qp-flow-rewrite",
-          "text": "模型先形成通用任务合同，Finance Domain Pack 再核验证券身份、时间范围、研究能力与交付意图。"
+          "text": "模型先形成通用任务合同，金融领域包再核验证券身份、时间范围、研究能力与交付意图。"
         },
         {
           "id": "qp-flow-freeze",
-          "text": "平台组合 Profile、Domain、Delivery、Skills、Memory 与 Knowledge，并把版本哈希、数据身份和上下文清单固化到任务与 workspace。"
+          "text": "平台组合配置、领域包、Skills、记忆与知识，并把版本哈希、数据身份和上下文清单固化到任务里。"
         },
         {
           "id": "qp-flow-generate",
-          "text": "独立 Worker 公平 claim 任务、持有分层 lease 与 fencing token，MoAgent 按 Mission 调用类型工具并写入工作空间。"
+          "text": "独立 Worker 公平领取任务，持有分层租约与 fencing token，按任务目标调用工具并写入工作空间。"
         },
         {
           "id": "qp-flow-deliver",
-          "text": "生成项目先在沙箱中 build 与 preview，数据、证据、视觉、产物合同和 eval 再共同判断是否可交付。"
+          "text": "生成的项目先在沙箱中构建和预览，数据、证据、视觉、产物合同和评测再共同判断能否交付。"
         },
         {
-          "id": "qp-tradeoff-domain",
-          "text": "通用内核不内置证券、量化工具或金融 Mission，业务规则由 Domain Pack 注入，避免扩展新行业时继续修改执行引擎。"
+          "id": "qp-study-domain",
+          "text": "通用内核不内置证券、量化工具或金融任务，业务规则全部由领域包注入，扩展新行业时不必修改执行引擎。"
         },
         {
-          "id": "qp-tradeoff-context",
-          "text": "Memory Recall 与知识准备快照随任务固化，Worker 真正执行时不重新检索另一套输入。"
+          "id": "qp-study-contract",
+          "text": "项目和任务持久化配置、领域、交付方式与能力的版本锁和 SHA-256，一次运行能回到当时实际使用的组合。"
         },
         {
-          "id": "qp-tradeoff-gate",
-          "text": "显式 submit-result 只是候选终态，平台仍会检查数据、证据、视觉、产物合同、预览和评测。"
+          "id": "qp-study-worker",
+          "text": "生成任务经事务 outbox 进入独立 Worker，注册表、全局槽位、公平领取、双层配额、租约、fencing 和资源锁共同约束长任务。"
         },
         {
-          "id": "qp-fit",
-          "text": "适合把自然语言金融研究转成带数据、证据、页面与验证记录的可运行工作空间，并让金融业务规则保持在独立 Domain Pack 中。"
+          "id": "qp-study-gate",
+          "text": "模型显式提交的结果只是候选终态，平台仍要检查数据、证据、视觉、产物合同、预览和评测，才判定是否交付。"
+        },
+        {
+          "id": "qp-note-edge",
+          "text": "差异收在边上，核心保持中立。领域包挡住金融规则，和 ModelPort 在网关边界挡住协议差异是同一个思路。"
+        },
+        {
+          "id": "qp-note-freeze",
+          "text": "排队前冻结上下文，Worker 执行时不再重新检索。这和记忆服务里冻结检索轨迹是同一类问题：让“到底用了什么输入”能被事后复查。"
+        },
+        {
+          "id": "qp-note-gate",
+          "text": "模型说“完成了”只是候选，交付由独立门禁判定。这和网关只按终态证据结算费用，是同一条原则。"
         },
         {
           "id": "qp-boundary",
@@ -186,19 +166,15 @@
     {
       "id": "evolvable-user-memory",
       "source": "https://github.com/AoHanBei/Memory",
-      "verification": "source-page-and-user-confirmed",
+      "verification": "resume-v2-and-user-confirmed",
       "claims": [
         {
           "id": "mem-summary",
-          "text": "一个面向 AI 应用的证据驱动、结果感知用户记忆服务，用 Evidence、Belief、Experience、Projection 与 Evolution 五个平面隔离不同事实。"
+          "text": "面向长期 AI 助手的用户记忆服务，记忆可溯源、可回看、可受控更新；处理偏好变更、晚到证据和反馈误强化，支持检索归因与策略演化审计。"
         },
         {
-          "id": "mem-problem",
-          "text": "朴素记忆系统常把原始对话、当前信念、检索排序和使用效果混在一起。某条记忆只要被多次读到，就可能被错误地当成更重要、更正确。"
-        },
-        {
-          "id": "mem-approach",
-          "text": "原始观察形成候选和不可变 Revision，召回冻结 Trace，只有引用该 Trace 的真实 Outcome 才能学习上下文效用。"
+          "id": "mem-origin",
+          "text": "个人项目，从数据模型、检索到评测门禁完整实现。"
         },
         {
           "id": "mem-shot-workbench",
@@ -206,59 +182,67 @@
         },
         {
           "id": "mem-shot-evidence",
-          "text": "当前记忆视图展示最新不可变 Revision、上下文、信念置信度与关联证据数量，并提供修正和修订历史入口。"
+          "text": "当前记忆视图展示最新的不可变修订、上下文、信念置信度与关联证据数量，并提供修正和修订历史入口。"
         },
         {
           "id": "mem-shot-planes",
-          "text": "Evidence、Belief、Experience、Projection 与 Evolution 各自负责不同事实，硬性不变量防止读操作偷偷改写信念。"
+          "text": "证据、信念、经验、投影与演化各自负责不同事实，硬性不变量防止读操作偷偷改写信念。"
         },
         {
-          "id": "mem-cap-evidence",
-          "text": "Observation、EvidenceSpan 与 Candidate 保存实际观察到的内容、出处和候选解释，不提前把输入包装成永久事实。"
+          "id": "mem-mod-layers-risk",
+          "text": "用户改了偏好，旧值被直接覆盖，之后再也说不清当前这条记忆是从哪来的、以前是什么。"
         },
         {
-          "id": "mem-cap-belief",
-          "text": "Revision 只追加不覆盖，查询可同时指定 valid_at 与 known_at，重建过去某时点可见的信念。"
+          "id": "mem-mod-layers-how",
+          "text": "把原始证据、信念、经验、检索投影和演化控制分层建模；信念以不可变修订记录追加，能从当前记忆追溯到历史版本和来源证据。"
         },
         {
-          "id": "mem-cap-experience",
-          "text": "Recall Trace 冻结候选、分数和策略，Outcome 必须指向 Trace，避免把无关反馈误记成某条记忆的效果。"
+          "id": "mem-mod-bitemporal-risk",
+          "text": "晚到的证据直接改写历史，系统再也回答不了“那个时点，系统当时知道什么”。"
         },
         {
-          "id": "mem-cap-projection",
-          "text": "精确去重、Revision 归因、预算裁剪和可复现 digest 共同生成 Context Projection，实际采用情况另行登记。"
+          "id": "mem-mod-bitemporal-how",
+          "text": "区分事实生效时间 valid_at 和系统获知时间 known_at，查询可以同时指定两者；晚到证据只补充认知，不改写系统在过去时点的判断。"
         },
         {
-          "id": "mem-cap-evolution",
-          "text": "策略提案、实验与追加式状态转换可追踪，只有内部编排路径可以激活或回滚。"
+          "id": "mem-mod-retrieval-risk",
+          "text": "召回了过期偏好，或者漏掉了关键记忆，却找不到是哪个信号出的问题。"
         },
         {
-          "id": "mem-cap-governance",
-          "text": "授权按 tenant、subject、action、purpose 默认拒绝，Milvus 只保留可重建的哈希 Scope 与 Revision 投影。"
+          "id": "mem-mod-retrieval-how",
+          "text": "融合词法、向量、上下文、信念、效用和时间信号排序；每次召回冻结检索轨迹，记录候选、分数和所用策略，作为排查依据。"
         },
         {
-          "id": "mem-flow-observe",
-          "text": "系统在明确的 tenant、subject、action 与 purpose 下记录原始证据，Scope 内幂等键保证重试稳定，冲突输入被显式拒绝。"
+          "id": "mem-mod-feedback-risk",
+          "text": "一条记忆被反复召回，就被当成越来越可信，错误随使用次数自我强化。"
         },
         {
-          "id": "mem-flow-belief",
-          "text": "候选被接受后形成不可变 Revision，双时间模型同时回答当时何时有效和系统当时知道什么。"
+          "id": "mem-mod-feedback-how",
+          "text": "查询命中不会强化记忆；只有引用了检索轨迹的真实任务结果才更新效用，把“被检索”和“被验证有效”分开记录。"
         },
         {
-          "id": "mem-flow-recall",
-          "text": "相关性、上下文、信念、历史 Outcome 效用与新鲜度共同排序，随后冻结时间边界、策略版本、分数组成和 Trace ID。"
+          "id": "mem-mod-gate-risk",
+          "text": "未经验证的排序策略直接上线，服务越调越偏。"
         },
         {
-          "id": "mem-flow-evolve",
-          "text": "使用回执只证明上下文被采用，引用 Trace 的真实 Outcome 才更新情境效用，并为受治理的策略实验提供证据。"
+          "id": "mem-mod-gate-how",
+          "text": "用固定评测、评测凭据和比较交换控制策略晋升；候选策略的验证结果与发布条件绑定，未通过验证的更新进不了服务链路。"
+        },
+        {
+          "id": "mem-mod-storage-risk",
+          "text": "向量库与事实库不一致时，不知道该信哪一边。"
+        },
+        {
+          "id": "mem-mod-storage-how",
+          "text": "PostgreSQL 是事实源，Milvus 只是可重建的向量投影，最终可见性和双时间判断都回到 PostgreSQL；自动化测试和固定评测覆盖版本、检索与策略更新行为。"
         },
         {
           "id": "mem-tradeoff-read",
-          "text": "检索频率只能说明它常被系统看到，不能说明它更真实，学习入口被限制为可归因的 Outcome。"
+          "text": "检索频率只能说明它常被系统看到，不能说明它更真实，学习入口只留给可归因的任务结果。"
         },
         {
-          "id": "mem-tradeoff-index",
-          "text": "Milvus 只是可重建的候选投影，最终可见性、Scope、Revision 和双时间判断全部回到 PostgreSQL 权威状态。"
+          "id": "mem-tradeoff-bitemporal",
+          "text": "双时间查询能还原系统当时的认知，但不保证答案完全复现，排序模型和策略版本同样会变。"
         },
         {
           "id": "mem-tradeoff-governance",
@@ -270,7 +254,7 @@
         },
         {
           "id": "mem-boundary",
-          "text": "当前为开发预览，离线哈希 embedding 是确定性基线，不代表生产语义模型质量，生产身份治理、备份和完整运维仍需部署侧补齐。"
+          "text": "当前为开发预览，离线哈希 embedding 是确定性基线，不代表生产语义模型质量；生产身份治理、备份和完整运维仍需部署侧补齐。"
         }
       ]
     }

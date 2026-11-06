@@ -2,17 +2,18 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowRight, ArrowUpRight, Code2, Copy, Menu, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import type { Claim, ProjectImage } from "@/content/projects";
+import type { Claim, Project, ProjectImage } from "@/content/projects";
+import { profile } from "@/content/profile";
 import { cn } from "@/lib/utils";
 
-export const EMAIL = "2292110346@qq.com";
+export const EMAIL = profile.email;
 
 const navItems = [
   { label: "项目", href: "/#projects" },
-  { label: "公开工程", href: "/#engineering" },
+  { label: "开源贡献", href: "/#open-source" },
+  { label: "关于", href: "/#about" },
   { label: "联系", href: "/#contact" },
 ];
 
@@ -20,11 +21,11 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/88 backdrop-blur-xl">
       <div className="page-shell flex h-[4.5rem] items-center justify-between">
-        <a href="/" className="group flex items-center gap-3" aria-label="南山南首页">
+        <a href="/" className="group flex items-center gap-3" aria-label={`${profile.name}首页`}>
           <span className="grid size-8 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-            南
+            吴
           </span>
-          <span className="text-sm font-medium tracking-[-0.02em]">南山南</span>
+          <span className="text-sm font-medium tracking-[-0.02em]">{profile.name}</span>
         </a>
 
         <nav className="hidden items-center gap-7 md:flex" aria-label="主要导航">
@@ -51,18 +52,18 @@ export function SiteHeader() {
               </Button>
             </SheetTrigger>
             <SheetContent>
-              <SheetTitle className="pr-14 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                Navigation / 导航
+              <SheetTitle className="pr-14 text-sm font-medium text-muted-foreground">
+                导航
               </SheetTitle>
               <nav className="mt-16 grid" aria-label="移动端导航">
-                {navItems.map((item, index) => (
+                {navItems.map((item) => (
                   <SheetClose asChild key={item.href}>
                     <a
                       href={item.href}
                       className="flex min-h-16 items-center justify-between border-t border-border text-2xl font-medium tracking-[-0.04em] last:border-b"
                     >
                       {item.label}
-                      <span className="text-xs tabular-nums text-primary">0{index + 1}</span>
+                      <ArrowRight className="size-4 text-primary" aria-hidden="true" />
                     </a>
                   </SheetClose>
                 ))}
@@ -83,10 +84,10 @@ export function SiteHeader() {
   );
 }
 
-export function SiteFooter({ label = "Portfolio / 2026" }: { label?: string }) {
+export function SiteFooter({ label = "作品集 2026" }: { label?: string }) {
   return (
     <footer className="page-shell flex min-h-28 flex-col justify-center gap-3 border-t border-border py-7 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-      <span>南山南 · {label}</span>
+      <span>{profile.name} · {label}</span>
       <div className="flex items-center gap-6">
         <a href={`mailto:${EMAIL}`} className="hover:text-foreground">{EMAIL}</a>
         <a href="#main" className="inline-flex items-center gap-1 hover:text-foreground">
@@ -114,37 +115,30 @@ export function PageFrame({ children, footerLabel }: { children: ReactNode; foot
 }
 
 export function SectionHeading({
-  index,
-  eyebrow,
+  label,
   title,
   description,
-  inverse = false,
-  titleClassName,
+  aside,
 }: {
-  index: string;
-  eyebrow: string;
+  label: string;
   title: string;
   description?: string;
-  inverse?: boolean;
-  titleClassName?: string;
+  aside?: ReactNode;
 }) {
   return (
     <header
-      className={cn(
-        "grid grid-cols-[minmax(0,1fr)] gap-7 border-t pt-5 md:grid-cols-[minmax(8rem,.34fr)_minmax(0,1fr)] md:gap-12",
-        inverse ? "border-primary-foreground/20" : "border-border",
-      )}
+      className="grid grid-cols-[minmax(0,1fr)] gap-5 border-t border-foreground/80 pt-5 md:grid-cols-[minmax(8rem,.3fr)_minmax(0,1fr)] md:gap-12"
       data-reveal
     >
-      <div className="flex items-start gap-3 text-[0.68rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        <span className={cn("tabular-nums", inverse && "text-primary-foreground/60")}>{index}</span>
-        <span className={cn(inverse && "text-primary-foreground/60")}>{eyebrow}</span>
-      </div>
-      <div className="max-w-4xl">
-        <h2 className={cn("display-title text-balance", inverse && "text-primary-foreground", titleClassName)}>{title}</h2>
-        {description ? (
-          <p className={cn("mt-5 max-w-2xl text-pretty text-base leading-8 text-muted-foreground", inverse && "text-primary-foreground/62")}>{description}</p>
-        ) : null}
+      <p className="text-sm font-medium text-primary">{label}</p>
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-3xl">
+          <h2 className="display-title text-balance">{title}</h2>
+          {description ? (
+            <p className="mt-5 max-w-2xl text-pretty text-base leading-8 text-muted-foreground">{description}</p>
+          ) : null}
+        </div>
+        {aside ? <div className="shrink-0">{aside}</div> : null}
       </div>
     </header>
   );
@@ -163,13 +157,11 @@ export function ScreenshotFrame({
   eager = false,
   className,
   showCaption = true,
-  index,
 }: {
   image: ProjectImage;
   eager?: boolean;
   className?: string;
   showCaption?: boolean;
-  index?: string;
 }) {
   return (
     <figure className={cn("group min-w-0", className)} data-reveal>
@@ -210,28 +202,16 @@ export function ScreenshotFrame({
         </Dialog.Portal>
       </Dialog.Root>
       {showCaption ? (
-        <figcaption className="grid gap-3 border-b border-border py-4 sm:grid-cols-[4rem_minmax(0,1fr)]">
-          <span className="text-[0.68rem] font-medium tabular-nums text-primary">{index ?? "FIG."}</span>
-          <div>
-            <h3 className="text-sm font-semibold tracking-[-0.02em]">{image.title}</h3>
-            <ClaimText claim={image.caption} className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground" />
-          </div>
+        <figcaption className="pt-4">
+          <h3 className="text-sm font-semibold tracking-[-0.01em]">{image.title}</h3>
+          <ClaimText claim={image.caption} className="mt-1.5 max-w-2xl text-sm leading-7 text-muted-foreground" />
         </figcaption>
       ) : null}
     </figure>
   );
 }
 
-export function StatusBadges() {
-  return (
-    <div className="flex flex-wrap gap-2">
-      <Badge className="border-primary/25 bg-primary/7 text-primary">案例已收录</Badge>
-      <Badge>源码整理中</Badge>
-    </div>
-  );
-}
-
-export function ArrowLink({ children, href, external = false, className }: { children: ReactNode; href: string; external?: boolean; className?: string }) {
+export function ArrowLink({ children, href, external = false, bare = false, className }: { children: ReactNode; href: string; external?: boolean; bare?: boolean; className?: string }) {
   return (
     <a
       href={href}
@@ -240,7 +220,7 @@ export function ArrowLink({ children, href, external = false, className }: { chi
       className={cn("arrow-link group inline-flex min-h-11 items-center gap-2 text-sm font-semibold", className)}
     >
       {children}
-      {external ? <ArrowUpRight className="size-4" aria-hidden="true" /> : <ArrowRight className="size-4" aria-hidden="true" />}
+      {bare ? null : external ? <ArrowUpRight className="size-4" aria-hidden="true" /> : <ArrowRight className="size-4" aria-hidden="true" />}
     </a>
   );
 }
@@ -263,5 +243,24 @@ export function CopyEmailButton() {
       {copied ? "已复制" : "复制邮箱"}
       <Copy className="size-4" aria-hidden="true" />
     </Button>
+  );
+}
+
+export function ProjectMeta({ project }: { project: Project }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+        <span className="status-pill" data-kind={project.kind}>
+          <span className="status-dot" aria-hidden="true" />
+          {project.status}
+        </span>
+        {project.period ? <span className="tabular-nums text-muted-foreground">{project.period}</span> : null}
+      </div>
+      <ul className="flex flex-wrap gap-1.5" aria-label={`${project.name} 技术栈`}>
+        {project.stack.map((item) => (
+          <li key={item} className="stack-chip" lang="en">{item}</li>
+        ))}
+      </ul>
+    </div>
   );
 }

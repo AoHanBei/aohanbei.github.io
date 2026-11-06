@@ -12,7 +12,7 @@
 3. `PLAN.md`：迁移背景和长期技术决策；其中的历史设计方案若与本文件冲突，以本文件和用户最新批注为准。
 4. 需要修改内容时，再阅读 `src/content/` 和对应页面组件，不要凭空补充个人经历或项目指标。
 
-当前有效的视觉方向是“浅色编辑档案”：暖纸白、石墨黑、朱砂红，强调真实产品截图、清晰网格和克制留白。不要恢复已经删除的首页“开源贡献”区块或导航入口，除非用户重新明确提出。
+当前有效的视觉方向是“浅色编辑档案”：暖纸白、石墨黑、朱砂红，强调真实产品截图、清晰网格和克制留白。2026-09-25 起内容以简历 V2.0 为准：署名“吴昊强”，首页包含开源贡献与经历区块，详见 `PLAN.md` 顶部的当前状态。
 
 ## 主流程 Skills
 
@@ -92,7 +92,7 @@
 - 保持多页面 `.html` URL，不能擅自改成依赖 rewrite 的 SPA 路由。
 - 首选真实截图，不用抽象装饰替代产品证据。
 - 不新增未经确认的履历、职责、仓库数量、性能指标或项目成果。
-- 首页当前不展示 DeerFlow 开源贡献；`src/content/contributions.ts` 只是保留的数据，不代表必须渲染。
+- 首页展示 DeerFlow 与 DeepTutor 的 13 个已合并 PR；新增 PR 时同时更新 `src/content/contributions.ts` 和 `scripts/validate-site.mjs` 中的清单。
 - 动效应克制，并完整支持 `prefers-reduced-motion`。
 
 ## 每次交付前的最低检查
@@ -114,5 +114,5 @@ powershell -ExecutionPolicy Bypass -File scripts\run-finesse-check.ps1
 ## 可复制到新对话的启动提示
 
 ```text
-请先阅读仓库根目录的 README.md、SKILLS-PLAN.md 和 PLAN.md，再继续修改这个作品集。以 SKILLS-PLAN.md 作为当前 skill 调用与验收准则；保持“浅色编辑档案”视觉方向以及 Tailwind CSS + shadcn/ui 语义 token 的技术约束。不要恢复首页已删除的“开源贡献”区块，也不要捏造项目事实。根据任务范围选择 frontend-design、finesse-ui、browser、webapp-testing；只有修改动效时才使用 review-animations。完成后运行 lint、build、validate 和 Finesse 检查，并在真实浏览器中复查相关视口。
+请先阅读仓库根目录的 README.md、SKILLS-PLAN.md 和 PLAN.md，再继续修改这个作品集。以 SKILLS-PLAN.md 作为当前 skill 调用与验收准则；保持“浅色编辑档案”视觉方向以及 Tailwind CSS + shadcn/ui 语义 token 的技术约束。内容以简历 V2.0 为准，不要捏造项目事实。根据任务范围选择 frontend-design、finesse-ui、browser、webapp-testing；只有修改动效时才使用 review-animations。完成后运行 lint、build、validate 和 Finesse 检查，并在真实浏览器中复查相关视口。
 ```

@@ -141,10 +141,10 @@ for (const id of claimReferences) {
 }
 
 const contributions = readFileSync(join(workspace, "src/content/contributions.ts"), "utf8");
-const prNumbers = [...contributions.matchAll(/number:\s*(\d+)/g)].map((match) => Number(match[1]));
-const expectedPrs = [5127, 4933, 4762, 4752, 4709];
+const prNumbers = [...contributions.matchAll(/number:\s*(\d+)/g)].map((match) => Number(match[1])).sort((a, b) => a - b);
+const expectedPrs = [1333, 1396, 1408, 1415, 1442, 1452, 1492, 1499, 4709, 4752, 4762, 4933, 5127];
 if (JSON.stringify(prNumbers) !== JSON.stringify(expectedPrs)) {
-  fail(`DeerFlow PR 清单不匹配: ${prNumbers.join(", ")}`);
+  fail(`已合并 PR 清单不匹配: ${prNumbers.join(", ")}`);
 }
 
 const manifest = JSON.parse(readFileSync(join(workspace, "assets/project-images/manifest.json"), "utf8"));
@@ -182,4 +182,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Site validation passed: 5 pages, ${claimIds.length} source claims, 5 DeerFlow PRs, 9 project images.`);
+console.log(`Site validation passed: 5 pages, ${claimIds.length} source claims, ${prNumbers.length} merged PRs, 9 project images.`);

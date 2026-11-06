@@ -1,47 +1,158 @@
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
+import { GatewayFlowDiagram, MemoryModelDiagram } from "@/components/diagrams";
 import {
   ArrowLink,
   ClaimText,
   PageFrame,
+  ProjectMeta,
   ScreenshotFrame,
 } from "@/components/site";
 import { Button } from "@/components/ui/button";
-import { projectHref, projects, type Project } from "@/content/projects";
+import {
+  projectHref,
+  projects,
+  type BuildProject,
+  type Project,
+  type StudyProject,
+} from "@/content/projects";
 import { useReveal } from "@/hooks/use-reveal";
 
 type CaseSectionProps = {
-  index: string;
-  eyebrow: string;
+  label: string;
   title: string;
-  description?: string;
   id?: string;
+  wide?: boolean;
   children: ReactNode;
 };
 
-function CaseSection({
-  index,
-  eyebrow,
-  title,
-  description,
-  id,
-  children,
-}: CaseSectionProps) {
+function CaseSection({ label, title, id, wide = false, children }: CaseSectionProps) {
   return (
-    <section id={id} className="case-section page-shell scroll-mt-24" data-reveal>
-      <div className="case-section-grid">
-        <header className="case-section-rail">
-          <p className="case-section-index">{index}</p>
-          <p className="case-section-eyebrow">{eyebrow}</p>
-          <h2 className="case-section-title">{title}</h2>
-          {description ? (
-            <p className="case-section-description">{description}</p>
-          ) : null}
-        </header>
-        <div className="min-w-0">{children}</div>
-      </div>
+    <section id={id} className="case-section page-shell scroll-mt-24">
+      <header className="case-section-head" data-reveal>
+        <p className="case-section-label">{label}</p>
+        <h2 className="case-section-title">{title}</h2>
+      </header>
+      <div className="case-section-body mt-10 min-w-0" data-wide={wide ? "true" : undefined}>{children}</div>
     </section>
+  );
+}
+
+function delay(index: number, step = 45) {
+  return { "--reveal-delay": `${index * step}ms` } as CSSProperties;
+}
+
+function FitAndBoundary({ fit, boundary }: { fit?: BuildProject["fit"]; boundary: BuildProject["boundary"] }) {
+  return (
+    <div className="case-boundary-grid mt-12" data-reveal>
+      {fit ? (
+        <article>
+          <h3>当前更适合</h3>
+          <ClaimText claim={fit} />
+        </article>
+      ) : null}
+      <article>
+        <h3>当前不承诺</h3>
+        <ClaimText claim={boundary} />
+      </article>
+    </div>
+  );
+}
+
+function Evidence({ project }: { project: Project }) {
+  return (
+    <CaseSection label="界面" title="产品截图" wide>
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-8">
+        {project.evidence.map((image) => (
+          <ScreenshotFrame key={image.title} image={image} />
+        ))}
+      </div>
+    </CaseSection>
+  );
+}
+
+function BuildBody({ project }: { project: BuildProject }) {
+  return (
+    <>
+      <CaseSection id="system" label="架构" title={project.diagramTitle} wide>
+        <div data-reveal>
+          {project.diagram === "modelport" ? <GatewayFlowDiagram /> : <MemoryModelDiagram />}
+        </div>
+      </CaseSection>
+
+      <CaseSection label="我实现的模块" title="每个模块防的是哪一类事故">
+        <ul className="module-list">
+          {project.modules.map((module, index) => (
+            <li key={module.title} className="module-row" data-reveal style={delay(index)}>
+              <h3>{module.title}</h3>
+              <div className="module-risk">
+                <p className="module-tag">要防的事故</p>
+                <ClaimText claim={module.risk} />
+              </div>
+              <div className="module-how">
+                <p className="module-tag">怎么做</p>
+                <ClaimText claim={module.how} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </CaseSection>
+
+      <CaseSection label="取舍与边界" title="刻意不做、以及做不到的事">
+        <div className="case-tradeoff-list">
+          {project.tradeoffs.map((tradeoff, index) => (
+            <article key={tradeoff.title} className="case-tradeoff-row" data-reveal style={delay(index)}>
+              <h3>{tradeoff.title}</h3>
+              <ClaimText claim={tradeoff.body} />
+            </article>
+          ))}
+        </div>
+        <FitAndBoundary fit={project.fit} boundary={project.boundary} />
+      </CaseSection>
+    </>
+  );
+}
+
+function StudyBody({ project }: { project: StudyProject }) {
+  return (
+    <>
+      <CaseSection id="system" label="它要解决什么" title="研究答案，不等于可交付的研究工作">
+        <ClaimText claim={project.problem} className="case-lead" />
+        <ol className="case-flow-list mt-10">
+          {project.flow.map((step, index) => (
+            <li key={step.title} className="case-flow-row" data-reveal style={delay(index)}>
+              <span className="case-flow-number">{index + 1}</span>
+              <h3>{step.title}</h3>
+              <ClaimText claim={step.body} />
+            </li>
+          ))}
+        </ol>
+      </CaseSection>
+
+      <CaseSection label="我在研究的设计" title="四个值得拆开看的机制">
+        <div className="case-tradeoff-list">
+          {project.studies.map((item, index) => (
+            <article key={item.title} className="case-tradeoff-row" data-reveal style={delay(index)}>
+              <h3>{item.title}</h3>
+              <ClaimText claim={item.body} />
+            </article>
+          ))}
+        </div>
+      </CaseSection>
+
+      <CaseSection label="我的理解" title="和我自己的项目对照着看">
+        <div className="grid gap-5 md:grid-cols-3">
+          {project.notes.map((note, index) => (
+            <article key={note.title} className="study-note" data-reveal style={delay(index, 60)}>
+              <h3>{note.title}</h3>
+              <ClaimText claim={note.body} />
+            </article>
+          ))}
+        </div>
+        <FitAndBoundary boundary={project.boundary} />
+      </CaseSection>
+    </>
   );
 }
 
@@ -56,29 +167,20 @@ export function CaseStudyPage({ project }: { project: Project }) {
     <PageFrame footerLabel={project.name}>
       <main id="main">
         <article>
-          <header className="case-hero page-shell grid grid-cols-[minmax(0,1fr)] gap-12 py-14 lg:grid-cols-[minmax(0,.8fr)_minmax(30rem,1.2fr)] lg:items-end lg:gap-[clamp(3rem,5vw,4.25rem)] lg:py-20">
+          <header className="case-hero page-shell grid grid-cols-[minmax(0,1fr)] gap-12 py-14 lg:grid-cols-[minmax(0,.85fr)_minmax(30rem,1.15fr)] lg:items-center lg:gap-[clamp(3rem,5vw,4.25rem)] lg:py-20">
             <div className="min-w-0" data-reveal>
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.66rem] font-medium uppercase tracking-[0.13em] text-muted-foreground">
-                <span className="text-primary">Case {project.order}</span>
-                <span>{project.category}</span>
+              <p className="text-sm font-medium text-primary">{project.category}</p>
+              <h1 className="case-title mt-4 text-balance">{project.name}</h1>
+              <ClaimText claim={project.summary} className="mt-7 max-w-xl text-pretty text-base leading-8 text-muted-foreground sm:text-[1.0625rem]" />
+              {project.kind === "build" ? (
+                <ClaimText claim={project.origin} className="case-origin mt-6 max-w-xl text-sm leading-7" />
+              ) : null}
+              <div className="mt-8">
+                <ProjectMeta project={project} />
               </div>
-              <h1 className="case-title mt-10 text-balance">{project.name}</h1>
-              <p className="mt-3 text-xs font-medium uppercase tracking-[0.13em] text-primary">{project.categoryZh}</p>
-              <ClaimText claim={project.summary} className="mt-7 max-w-xl text-pretty text-base leading-8 text-muted-foreground" />
-              <dl className="mt-9 border-t border-border">
-                {project.facts.map((fact) => (
-                  <div key={fact.label} className="grid grid-cols-[minmax(7rem,.8fr)_minmax(0,1.2fr)] border-b border-border py-3 text-xs">
-                    <dt className="uppercase tracking-[0.09em] text-muted-foreground">{fact.label}</dt>
-                    <dd className="text-right font-medium">{fact.value}</dd>
-                  </div>
-                ))}
-              </dl>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-9 flex flex-wrap gap-3">
                 <Button asChild>
-                  <a href="#system">查看系统链路 <ArrowDown className="size-4" aria-hidden="true" /></a>
-                </Button>
-                <Button asChild variant="outline">
-                  <a href="/#projects"><ArrowLeft className="size-4" aria-hidden="true" /> 返回项目</a>
+                  <a href="#system">{project.kind === "build" ? "看架构" : "看它要解决什么"} <ArrowDown className="size-4" aria-hidden="true" /></a>
                 </Button>
                 {project.repositoryUrl ? (
                   <Button asChild variant="outline">
@@ -87,127 +189,32 @@ export function CaseStudyPage({ project }: { project: Project }) {
                     </a>
                   </Button>
                 ) : null}
+                <Button asChild variant="ghost">
+                  <a href="/#projects"><ArrowLeft className="size-4" aria-hidden="true" /> 全部项目</a>
+                </Button>
               </div>
             </div>
-            <ScreenshotFrame image={project.heroImage} eager index="FIG. 01" />
+            <ScreenshotFrame image={project.heroImage} eager />
           </header>
 
-          <CaseSection
-            index="01"
-            eyebrow="Problem & decision / 问题与决策"
-            title="从真实阻力，到明确的系统判断。"
-          >
-            <div className="case-decision-list">
-              <article className="case-decision-row" data-reveal>
-                <p className="case-row-label">问题 / Problem</p>
-                <div>
-                  <h3>{project.problem.title}</h3>
-                  <ClaimText claim={project.problem.body} />
-                </div>
-              </article>
-              <article
-                className="case-decision-row"
-                data-reveal
-                style={{ "--reveal-delay": "55ms" } as CSSProperties}
-              >
-                <p className="case-row-label text-primary">决策 / Decision</p>
-                <div>
-                  <h3>{project.approach.title}</h3>
-                  <ClaimText claim={project.approach.body} />
-                </div>
-              </article>
-            </div>
-          </CaseSection>
-
-          <CaseSection
-            id="system"
-            index="02"
-            eyebrow={project.lifecycleLabel + " / System flow"}
-            title={project.lifecycleTitle}
-          >
-            <ScreenshotFrame image={project.evidence[0]} index="FIG. 02" />
-            <ol className="case-lifecycle-list mt-10">
-              {project.lifecycle.map((step, index) => (
-                <li
-                  key={step.title}
-                  className="case-lifecycle-row"
-                  data-reveal
-                  style={{ "--reveal-delay": String(index * 45) + "ms" } as CSSProperties}
-                >
-                  <span className="case-row-number">0{index + 1}</span>
-                  <h3>{step.title}</h3>
-                  <ClaimText claim={step.body} />
-                </li>
-              ))}
-            </ol>
-          </CaseSection>
-
-          <CaseSection
-            index="03"
-            eyebrow="Engineering controls / 工程控制"
-            title="六个可验证的系统边界。"
-            description={project.capabilityIntro}
-          >
-            <ol className="case-capability-list">
-              {project.capabilities.map((capability, index) => (
-                <li
-                  key={capability.title}
-                  className="case-capability-row"
-                  data-reveal
-                  style={{ "--reveal-delay": String(index * 40) + "ms" } as CSSProperties}
-                >
-                  <span className="case-row-number">0{index + 1}</span>
-                  <h3>{capability.title}</h3>
-                  <ClaimText claim={capability.body} />
-                </li>
-              ))}
-            </ol>
-            <div className="mt-10">
-              <ScreenshotFrame image={project.evidence[1]} index="FIG. 03" />
-            </div>
-          </CaseSection>
-
-          <CaseSection
-            index="04"
-            eyebrow="Tradeoffs & boundaries / 取舍与边界"
-            title={project.tradeoffsTitle}
-          >
-            <div className="case-tradeoff-list">
-              {project.tradeoffs.map((tradeoff, index) => (
-                <article
-                  key={tradeoff.title}
-                  className="case-tradeoff-row"
-                  data-reveal
-                  style={{ "--reveal-delay": String(index * 45) + "ms" } as CSSProperties}
-                >
-                  <span className="case-row-number">0{index + 1}</span>
-                  <h3>{tradeoff.title}</h3>
-                  <ClaimText claim={tradeoff.body} />
-                </article>
-              ))}
-            </div>
-
-            <div className="case-boundary-grid mt-12" data-reveal>
-              <article>
-                <p className="case-row-label text-primary">适用场景 / Good fit</p>
-                <h3>当前更适合</h3>
-                <ClaimText claim={project.fit} />
-              </article>
-              <article>
-                <p className="case-row-label">明确边界 / Boundary</p>
-                <h3>当前不承诺</h3>
-                <ClaimText claim={project.boundary} />
-              </article>
-            </div>
-          </CaseSection>
+          {project.kind === "build" ? <BuildBody project={project} /> : <StudyBody project={project} />}
+          <Evidence project={project} />
         </article>
 
-        <nav className="page-shell grid border-t border-border py-8 sm:grid-cols-2" aria-label="案例翻页">
+        <nav className="page-shell mt-[var(--section-space)] grid border-t border-border py-8 sm:grid-cols-2" aria-label="案例翻页">
           <div>
-            {previous ? <ArrowLink href={projectHref(previous.slug)}><ArrowLeft className="size-4" /> {previous.shortName}</ArrowLink> : <ArrowLink href="/#projects"><ArrowLeft className="size-4" /> 返回项目</ArrowLink>}
+            {previous ? (
+              <ArrowLink bare href={projectHref(previous.slug)}><ArrowLeft className="size-4" /> {previous.name}</ArrowLink>
+            ) : (
+              <ArrowLink bare href="/#projects"><ArrowLeft className="size-4" /> 全部项目</ArrowLink>
+            )}
           </div>
           <div className="mt-4 sm:mt-0 sm:text-right">
-            {next ? <ArrowLink href={projectHref(next.slug)}>{next.shortName} <ArrowRight className="size-4" /></ArrowLink> : <ArrowLink href="/#projects">浏览全部项目 <ArrowRight className="size-4" /></ArrowLink>}
+            {next ? (
+              <ArrowLink bare href={projectHref(next.slug)}>{next.name} <ArrowRight className="size-4" /></ArrowLink>
+            ) : (
+              <ArrowLink bare href="/#projects">全部项目 <ArrowRight className="size-4" /></ArrowLink>
+            )}
           </div>
         </nav>
       </main>
