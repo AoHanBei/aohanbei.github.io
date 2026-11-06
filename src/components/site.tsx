@@ -11,9 +11,10 @@ import { cn } from "@/lib/utils";
 export const EMAIL = profile.email;
 
 const navItems = [
+  { label: "能力", href: "/#skills" },
   { label: "项目", href: "/#projects" },
   { label: "开源贡献", href: "/#open-source" },
-  { label: "关于", href: "/#about" },
+  { label: "实习", href: "/#internship" },
   { label: "联系", href: "/#contact" },
 ];
 

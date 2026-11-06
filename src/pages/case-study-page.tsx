@@ -81,7 +81,7 @@ function BuildBody({ project }: { project: BuildProject }) {
         </div>
       </CaseSection>
 
-      <CaseSection label="我实现的模块" title="每个模块防的是哪一类事故">
+      <CaseSection id="modules" label="我实现的模块" title="每个模块防的是哪一类事故">
         <ul className="module-list">
           {project.modules.map((module, index) => (
             <li key={module.title} className="module-row" data-reveal style={delay(index)}>
@@ -171,6 +171,11 @@ export function CaseStudyPage({ project }: { project: Project }) {
             <div className="min-w-0" data-reveal>
               <p className="text-sm font-medium text-primary">{project.category}</p>
               <h1 className="case-title mt-4 text-balance">{project.name}</h1>
+              {project.alias ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  原项目 <span lang="en" className="font-medium text-foreground">{project.alias}</span>
+                </p>
+              ) : null}
               <ClaimText claim={project.summary} className="mt-7 max-w-xl text-pretty text-base leading-8 text-muted-foreground sm:text-[1.0625rem]" />
               {project.kind === "build" ? (
                 <ClaimText claim={project.origin} className="case-origin mt-6 max-w-xl text-sm leading-7" />

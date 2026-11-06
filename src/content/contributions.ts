@@ -13,16 +13,22 @@ export type ContributionRepo = {
   name: string;
   owner: string;
   repoUrl: string;
+  /** 上游仓库 Star 约数，随核对日期一起更新。 */
+  stars: string;
   intro: string;
   themes: ContributionTheme[];
 };
 
-/** 已合并 PR，2026-09-25 通过 GitHub 核对。 */
+/** 已合并 PR 与上游 Star 约数的核对日期。 */
+export const contributionsVerifiedOn = "2026-11-06";
+
+/** 已合并 PR，与简历保持一致。 */
 export const contributionRepos: ContributionRepo[] = [
   {
     name: "DeerFlow",
     owner: "bytedance/deer-flow",
     repoUrl: "https://github.com/bytedance/deer-flow",
+    stars: "85k+",
     intro: "围绕 Agent 运行时可靠性提交修复与增强，补充确定性回归测试和相关契约文档。",
     themes: [
       {
@@ -54,6 +60,7 @@ export const contributionRepos: ContributionRepo[] = [
     name: "DeepTutor",
     owner: "HKUDS/DeepTutor",
     repoUrl: "https://github.com/HKUDS/DeepTutor",
+    stars: "55k+",
     intro: "围绕模型调用链路、用量核算与会话数据可用性提交修复与增强，补充覆盖失败路径的回归测试。",
     themes: [
       {

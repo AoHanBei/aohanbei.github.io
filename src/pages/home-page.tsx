@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUpRight, GitPullRequest } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, GitPullRequest, Star } from "lucide-react";
 import type { CSSProperties } from "react";
 
 import {
@@ -11,9 +11,10 @@ import {
   SectionHeading,
 } from "@/components/site";
 import { Button } from "@/components/ui/button";
-import { contributionRepos, mergedPrCount, prUrl } from "@/content/contributions";
-import { profile, timeline } from "@/content/profile";
+import { contributionRepos, contributionsVerifiedOn, mergedPrCount, prUrl } from "@/content/contributions";
+import { internship, profile } from "@/content/profile";
 import { projectHref, projects, type Project } from "@/content/projects";
+import { skills } from "@/content/skills";
 import { useReveal } from "@/hooks/use-reveal";
 
 function ProjectLinks({ project }: { project: Project }) {
@@ -26,6 +27,21 @@ function ProjectLinks({ project }: { project: Project }) {
         </ArrowLink>
       ) : null}
     </div>
+  );
+}
+
+function ProjectTitle({ project, className }: { project: Project; className: string }) {
+  return (
+    <>
+      <h3 className={className}>
+        <a href={projectHref(project.slug)}>{project.name}</a>
+      </h3>
+      {project.alias ? (
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          原项目 <span lang="en" className="font-medium text-foreground">{project.alias}</span>
+        </p>
+      ) : null}
+    </>
   );
 }
 
@@ -47,7 +63,7 @@ export function HomePage() {
           <div className="relative z-10 min-w-0 max-w-2xl" data-reveal>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
               <p className="text-sm font-medium">
-                {profile.name} · {profile.role} · {profile.degree}
+                {profile.name} · {profile.role}
               </p>
               <span className="status-pill">
                 <span className="status-dot" aria-hidden="true" />
@@ -106,11 +122,38 @@ export function HomePage() {
           <dl className="page-shell grid grid-cols-2 lg:grid-cols-4">
             {stats.map(([value, label], index) => (
               <div key={label} className="trust-stat" data-reveal style={{ "--reveal-delay": `${index * 60}ms` } as CSSProperties}>
-                <dt className="text-sm text-background/72">{label}</dt>
-                <dd className="order-first text-4xl font-semibold tabular-nums tracking-[-0.05em] text-background sm:text-5xl">{value}</dd>
+                <dt className="text-sm text-muted-foreground">{label}</dt>
+                <dd className="order-first text-4xl font-semibold tabular-nums tracking-[-0.05em] text-foreground sm:text-5xl">{value}</dd>
               </div>
             ))}
           </dl>
+        </section>
+
+        <section id="skills" className="page-shell scroll-mt-24 pt-section" aria-label="能力">
+          <ol className="skill-grid">
+            {skills.map((skill, index) => (
+              <li key={skill.title} className="skill-cell" data-reveal style={{ "--reveal-delay": `${index * 60}ms` } as CSSProperties}>
+                <p className="text-xs font-medium tabular-nums text-primary" lang="en">0{index + 1}</p>
+                <h2 className="mt-3 text-xl font-semibold tracking-[-0.03em]">{skill.title}</h2>
+                <p className="mt-3 text-sm leading-7 text-muted-foreground">{skill.body}</p>
+                <ul className="mt-5 grid gap-1 border-t border-border pt-4">
+                  {skill.evidence.map((item) => (
+                    <li key={item.label}>
+                      <a
+                        href={item.href}
+                        target={item.external ? "_blank" : undefined}
+                        rel={item.external ? "noreferrer" : undefined}
+                        className="skill-evidence"
+                      >
+                        <span>{item.label}</span>
+                        {item.external ? <ArrowUpRight className="size-3.5 shrink-0" aria-hidden="true" /> : <ArrowRight className="size-3.5 shrink-0" aria-hidden="true" />}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <section id="projects" className="page-shell scroll-mt-24 py-section">
@@ -128,9 +171,7 @@ export function HomePage() {
               <ProjectMeta project={modelport} />
               <div className="my-auto">
                 <p className="text-sm font-medium text-primary">{modelport.category}</p>
-                <h3 className="featured-project-title mt-2 text-balance">
-                  <a href={projectHref(modelport.slug)}>{modelport.name}</a>
-                </h3>
+                <ProjectTitle project={modelport} className="featured-project-title mt-2 text-balance" />
                 <ClaimText claim={modelport.summary} className="mt-5 text-pretty text-base leading-8 text-muted-foreground" />
               </div>
               <ProjectLinks project={modelport} />
@@ -153,9 +194,7 @@ export function HomePage() {
                   <ProjectMeta project={project} />
                   <div>
                     <p className="text-sm font-medium text-primary">{project.category}</p>
-                    <h3 className="secondary-project-title mt-2 text-balance">
-                      <a href={projectHref(project.slug)}>{project.name}</a>
-                    </h3>
+                    <ProjectTitle project={project} className="secondary-project-title mt-2 text-balance" />
                     <ClaimText claim={project.summary} className="mt-4 text-pretty text-sm leading-7 text-muted-foreground" />
                   </div>
                   <div className="mt-auto">
@@ -172,6 +211,7 @@ export function HomePage() {
             label="开源贡献"
             title={`${mergedPrCount} 个已合并的修复与增强。`}
             description="集中在 Agent 运行时和模型调用链路的可靠性问题上，每条都附带回归测试，可以直接点开 PR 查看代码与讨论。"
+            aside={<p className="text-xs tabular-nums text-muted-foreground">PR 与 Star 数核对于 {contributionsVerifiedOn}</p>}
           />
 
           <div className="mt-12 grid gap-12 lg:grid-cols-2 lg:gap-10">
@@ -186,7 +226,13 @@ export function HomePage() {
                           {repo.name}
                         </a>
                       </h3>
-                      <p className="mt-1 text-sm text-muted-foreground" lang="en">{repo.owner}</p>
+                      <p className="mt-1 flex flex-wrap items-center gap-x-3 text-sm text-muted-foreground">
+                        <span lang="en">{repo.owner}</span>
+                        <span className="inline-flex items-center gap-1 tabular-nums" title="上游仓库 Star 约数">
+                          <Star className="size-3.5" aria-hidden="true" />
+                          {repo.stars}
+                        </span>
+                      </p>
                     </div>
                     <p className="text-sm tabular-nums text-muted-foreground">
                       <span className="text-foreground">{count}</span> 个 PR
@@ -223,20 +269,19 @@ export function HomePage() {
           </div>
         </section>
 
-        <section id="about" className="page-shell scroll-mt-24 pb-section">
-          <SectionHeading label="关于" title="经历" />
-          <ol className="mt-10 border-t border-border">
-            {timeline.map((entry) => (
-              <li key={entry.org} className="timeline-row" data-reveal>
-                <p className="text-sm tabular-nums text-muted-foreground">{entry.period}</p>
-                <div>
-                  <h3 className="text-lg font-semibold tracking-[-0.02em]">{entry.org}</h3>
-                  <p className="mt-1 text-sm text-primary">{entry.role}</p>
-                </div>
-                {entry.detail ? <p className="text-sm leading-7 text-muted-foreground">{entry.detail}</p> : <span />}
-              </li>
-            ))}
-          </ol>
+        <section id="internship" className="page-shell scroll-mt-24 pb-section">
+          <SectionHeading label="实习" title="ModelPort 的来处。" />
+          <div className="timeline-row mt-10 border-t border-border" data-reveal>
+            <p className="text-sm tabular-nums text-muted-foreground">{internship.period}</p>
+            <div>
+              <h3 className="text-lg font-semibold tracking-[-0.02em]">{internship.org}</h3>
+              <p className="mt-1 text-sm text-primary">{internship.role}</p>
+            </div>
+            <div>
+              <p className="text-sm leading-7 text-muted-foreground">{internship.detail}</p>
+              <ArrowLink href={projectHref(modelport.slug)} className="mt-2">对应项目：ModelPort</ArrowLink>
+            </div>
+          </div>
         </section>
 
         <section id="contact" className="scroll-mt-24">

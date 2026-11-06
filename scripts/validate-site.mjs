@@ -92,6 +92,18 @@ for (const [path, page] of htmlEntries) {
   if (!html.includes('<div id="root"></div>')) fail(`${path}: 缺少 React 挂载点`);
   if (!html.includes('src="/src/main.tsx"')) fail(`${path}: 缺少共享 React 入口`);
   if (!html.includes('href="/favicon.svg"')) fail(`${path}: 缺少 favicon`);
+  const ogImage = html.match(/<meta property="og:image" content="https:\/\/aohanbei\.github\.io\/([^"]+)">/);
+  if (ogImage && !existsSync(join(workspace, "public", ogImage[1]))) {
+    fail(`${path}: og:image 指向的 public/${ogImage[1]} 不存在（构建后的图片路径带哈希，需放在 public/）`);
+  }
+}
+
+const excludedProfileTerms = ["硕士", "本科", "桂林电子科技大学", "北京联合大学", "论文", "专利"];
+for (const file of [...walk(join(workspace, "src")), join(workspace, "index.html")]) {
+  const text = readFileSync(file, "utf8");
+  for (const term of excludedProfileTerms) {
+    if (text.includes(term)) fail(`${sitePath(file)}: 站点不展示学历、论文与专利，发现“${term}”`);
+  }
 }
 
 const cssFiles = walk(workspace).filter((file) => extname(file).toLowerCase() === ".css");

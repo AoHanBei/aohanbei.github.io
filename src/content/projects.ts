@@ -33,6 +33,8 @@ export type Module = {
 type ProjectBase = {
   slug: ProjectSlug;
   name: string;
+  /** 原项目名；中文名作为主标题时，原名作为副标题保留。 */
+  alias?: string;
   category: string;
   status: string;
   period?: string;
@@ -182,14 +184,15 @@ export const projects: Project[] = [
   {
     kind: "study",
     slug: "quantpilot",
-    name: "QuantPilot",
-    category: "数据智能体",
+    name: "量化研究智能体",
+    alias: "QuantPilot",
+    category: "Data Agent 学习笔记",
     status: "学习中",
     stack: ["Next.js", "FastAPI", "TimescaleDB", "Redis"],
     summary: claim("qp-summary"),
     heroImage: {
       src: quantWorkbench,
-      alt: "QuantPilot 自然语言研究工作台",
+      alt: "QuantPilot 自然语言研究工作台界面",
       title: "自然语言研究入口",
       caption: claim("qp-shot-workbench"),
     },
